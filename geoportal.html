@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" href="leafletFiles/leaflet.css">
-        <link rel="stylesheet" href="style.css">
-        <script src="leafletFiles/leaflet.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+        <link rel="stylesheet" href="./style.css"/>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-providers@latest/leaflet-providers.js"></script>
         <meta charset="UTF-8">
     </head>
@@ -24,23 +24,23 @@
         </div>
         <div id="foot"></div> 
         <script>
-        var mappu = L.map('map',{minZoom: 3, maxBounds: [[-80,-Infinity],[80,Infinity]]}).setView([0,0], 3)
+        var map = L.map('map',{minZoom: 3, maxBounds: [[-80,-Infinity],[80,Infinity]]}).setView([0,0], 3)
             .on("mousedown", function() {
                 window.location.href = "#map";
             }) //lat,long
         var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             });
-            var cartoDB = L.tileLayer.provider('CartoDB.VoyagerNoLabels').addTo(mappu);
+            var cartoDB = L.tileLayer.provider('CartoDB.VoyagerNoLabels').addTo(map);
         var baseMaps = {
             "podkład cartoDB": cartoDB,
             "podkład OpenStreetMap": osm
         }
 
-        L.control.layers(baseMaps).addTo(mappu);
+        L.control.layers(baseMaps).addTo(map);
         
         var AllCountries;
-        fetch('countries.json')
+        fetch('./JSON/countries.json')
             .then(response => {
                 if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -56,7 +56,7 @@
         
         var lastClicked = null;
         
-        var borders = L.geoJSON(null,{style:{"color":"goldenrod","fillColor":"rgba(0,0,0,0)"}}).addTo(mappu);
+        var borders = L.geoJSON(null,{style:{"color":"goldenrod","fillColor":"rgba(0,0,0,0)"}}).addTo(map);
         
         function showFlags(event) {
             window.location.href = "#cont";
@@ -96,7 +96,7 @@
                 flagButton.style.setProperty("background-image",`url(\"${flagUrl}\")`);
                 flagButton.addEventListener("click", function() {
                     window.location.href = "#map";
-                    fetch(`./borders/${country.code}.json`)
+                    fetch(`./JSON/borders/${country.code}.json`)
                         .then(response => {
                             if(!response.ok) {
                                 throw new Error(`HTTP error! Status: ${response.status}`);
