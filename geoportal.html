@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="leafletFiles/leaflet.css">
+        <link rel="stylesheet" href="style.css">
+        <script src="leafletFiles/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet-providers@latest/leaflet-providers.js"></script>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <div class="useful-div">
+            <div id="map"></div>
+        </div>
+        <div class="useful-div margins">
+            <button id="af" class="squishy-button" onclick="showFlags(event)">Afryka</button>
+            <button id="sa" class="squishy-button" onclick="showFlags(event)">Ameryka Płd.</button>
+            <button id="na" class="squishy-button" onclick="showFlags(event)">Ameryka Płn.</button>
+            <button id="au" class="squishy-button" onclick="showFlags(event)">Australia Oceania</button>
+            <button id="as" class="squishy-button" onclick="showFlags(event)">Azja</button>
+            <button id="eu" class="squishy-button" onclick="showFlags(event)">Europa</button>
+        </div>
+        <div class="useful-div">
+            <div id="cont" class="flag-container"></div>
+        </div>
+        <div id="foot"></div> 
+        <script>
+        var mappu = L.map('map',{minZoom: 3, maxBounds: [[-80,-Infinity],[80,Infinity]]}).setView([0,0], 3)
+            .on("mousedown", function() {
+                window.location.href = "#map";
+            }) //lat,long
+        var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            });
+            var cartoDB = L.tileLayer.provider('CartoDB.VoyagerNoLabels').addTo(mappu);
+        var baseMaps = {
+            "podkład cartoDB": cartoDB,
+            "podkład OpenStreetMap": osm
+        }
+
+        L.control.layers(baseMaps).addTo(mappu);
+        
+        var AllCountries;
+        fetch('countries.json')
+            .then(response => {
+                if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                AllCountries = data;
+            })
+            .catch(error => {
+                console.error('Error fetching the JSON file:', error);
+            });
+        
+        var lastClicked = null;
+        
+        var borders = L.geoJSON(null,{style:{"color":"goldenrod","fillColor":"rgba(0,0,0,0)"}}).addTo(mappu);
+        
+        function showFlags(event) {
+            window.location.href = "#cont";
+            var Countries;
+            switch (event.target.id) {
+                case "af" : {
+                    Countries = AllCountries["Africa"];
+                    break;
+                }
+                case "sa" : {
+                    Countries = AllCountries["South America"];
+                    break;
+                }
+                case "na" : {
+                    Countries = AllCountries["North America"];
+                    break;
+                }
+                case "as" : {
+                    Countries = AllCountries["Asia"];
+                    break;
+                }
+                case "au" : {
+                    Countries = AllCountries["Australia"];
+                    break;
+                }
+                case "eu" : {
+                    Countries = AllCountries["Europe"];
+                    break;
+                }
+            }
+            var container = document.getElementById("cont");
+            container.innerHTML = '';
+            Countries.forEach(country => {
+                let flagUrl = `https://flagcdn.com/${country.code}.svg`;
+                let flagButton = document.createElement('button');
+                flagButton.classList.add('image-button');
+                flagButton.style.setProperty("background-image",`url(\"${flagUrl}\")`);
+                flagButton.addEventListener("click", function() {
+                    window.location.href = "#map";
+                    fetch(`./borders/${country.code}.json`)
+                        .then(response => {
+                            if(!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (lastClicked != country.code) {
+                                borders.clearLayers();
+                                borders.addData(data);
+                                lastClicked = country.code;
+                                borders.unbindPopup();
+                                borders.bindPopup(`${country.country}`, {autoPanPadding: L.point(400,400), closeButton: false}).openPopup();
+                            }
+                        })
+                        .catch(error => {
+                            console.log('Error while fetching geoJSON: ',error);
+                        });
+                })
+                container.appendChild(flagButton);
+                document.getElementById('foot').style.display = 'block';
+            });
+        }
+        </script>
+    </body>
+</html>
