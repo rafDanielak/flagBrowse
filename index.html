@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-        <link rel="stylesheet" href="./style.css"/>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <link rel="stylesheet" href="style.css">
         <script src="https://unpkg.com/leaflet-providers@latest/leaflet-providers.js"></script>
         <meta charset="UTF-8">
     </head>
@@ -11,7 +11,8 @@
         <div class="useful-div">
             <div id="map"></div>
         </div>
-        <div class="useful-div margins">
+        <div class="sep margin-bottom"></div>
+        <div class="useful-div margin-bottom">
             <button id="af" class="squishy-button" onclick="showFlags(event)">Afryka</button>
             <button id="sa" class="squishy-button" onclick="showFlags(event)">Ameryka Płd.</button>
             <button id="na" class="squishy-button" onclick="showFlags(event)">Ameryka Płn.</button>
@@ -22,25 +23,25 @@
         <div class="useful-div">
             <div id="cont" class="flag-container"></div>
         </div>
-        <div id="foot"></div> 
+        <div class="sep margin-top"></div> 
         <script>
-        var map = L.map('map',{minZoom: 3, maxBounds: [[-80,-Infinity],[80,Infinity]]}).setView([0,0], 3)
+        var mappu = L.map('map',{minZoom: 3, maxBounds: [[-80,-Infinity],[80,Infinity]]}).setView([0,0], 3)
             .on("mousedown", function() {
                 window.location.href = "#map";
             }) //lat,long
         var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             });
-            var cartoDB = L.tileLayer.provider('CartoDB.VoyagerNoLabels').addTo(map);
+            var cartoDB = L.tileLayer.provider('CartoDB.VoyagerNoLabels').addTo(mappu);
         var baseMaps = {
             "podkład cartoDB": cartoDB,
             "podkład OpenStreetMap": osm
         }
 
-        L.control.layers(baseMaps).addTo(map);
+        L.control.layers(baseMaps).addTo(mappu);
         
         var AllCountries;
-        fetch('./JSON/countries.json')
+        fetch('countries.json')
             .then(response => {
                 if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -56,7 +57,7 @@
         
         var lastClicked = null;
         
-        var borders = L.geoJSON(null,{style:{"color":"goldenrod","fillColor":"rgba(0,0,0,0)"}}).addTo(map);
+        var borders = L.geoJSON(null,{style:{"color":"goldenrod","fillColor":"rgba(0,0,0,0)"}}).addTo(mappu);
         
         function showFlags(event) {
             window.location.href = "#cont";
@@ -96,7 +97,7 @@
                 flagButton.style.setProperty("background-image",`url(\"${flagUrl}\")`);
                 flagButton.addEventListener("click", function() {
                     window.location.href = "#map";
-                    fetch(`./JSON/borders/${country.code}.json`)
+                    fetch(`./borders/${country.code}.json`)
                         .then(response => {
                             if(!response.ok) {
                                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -117,7 +118,6 @@
                         });
                 })
                 container.appendChild(flagButton);
-                document.getElementById('foot').style.display = 'block';
             });
         }
         </script>
