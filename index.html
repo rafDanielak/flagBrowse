@@ -41,7 +41,7 @@
         L.control.layers(baseMaps).addTo(mappu);
         
         var AllCountries;
-        fetch('countries.json')
+        fetch('./JSON/countries.json')
             .then(response => {
                 if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -97,7 +97,7 @@
                 flagButton.style.setProperty("background-image",`url(\"${flagUrl}\")`);
                 flagButton.addEventListener("click", function() {
                     window.location.href = "#map";
-                    fetch(`./borders/${country.code}.json`)
+                    fetch(`./JSON/borders/${country.code}.json`)
                         .then(response => {
                             if(!response.ok) {
                                 throw new Error(`HTTP error! Status: ${response.status}`);
